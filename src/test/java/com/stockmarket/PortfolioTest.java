@@ -16,7 +16,7 @@ public class PortfolioTest {
         portfolio = new Portfolio(1000.0);
         appleStock = new Stock("AAPL", "Apple Inc.", 150.0);
         googleStock = new Stock("GOOGL", "Alphabet Inc.", 2500.0);
-        microsoftStock = new Stock("MSFT", "Microsoft Corporation", 300.0);
+        microsoftStock = new Stock("M$FT", "Microsoft Corporation", 300.0);
     }
     
     @Test
@@ -158,5 +158,41 @@ public class PortfolioTest {
         assertEquals(10, portfolio.getStockQuantity(appleStock));
         assertEquals(1500.0, portfolio.calculateStockValue());
         assertEquals(2500.0, portfolio.calculateTotalValue());
+    }
+    
+    @Test
+    void testGetCash() {
+        assertEquals(1000.0, portfolio.getCash());
+        
+        Portfolio portfolioWithZeroCash = new Portfolio(0.0);
+        assertEquals(0.0, portfolioWithZeroCash.getCash());
+        
+        Portfolio portfolioWithLargeCash = new Portfolio(100000.0);
+        assertEquals(100000.0, portfolioWithLargeCash.getCash());
+        
+        portfolio.addStock(appleStock, 10);
+        assertEquals(1000.0, portfolio.getCash());
+    }
+    
+    @Test
+    void testFullArrayCapacity() {
+        Stock[] stocks = new Stock[10];
+        for (int i = 0; i < 10; i++) {
+            stocks[i] = new Stock("STOCK" + i, "Company " + i, 100.0 + i);
+            portfolio.addStock(stocks[i], 1);
+        }
+        
+        assertEquals(10, portfolio.getHoldingsCount());
+        
+        for (int i = 0; i < 10; i++) {
+            assertEquals(1, portfolio.getStockQuantity(stocks[i]));
+        }
+        
+        double expectedValue = 0.0;
+        for (int i = 0; i < 10; i++) {
+            expectedValue += (100.0 + i);
+        }
+        assertEquals(expectedValue, portfolio.calculateStockValue());
+        assertEquals(1000.0 + expectedValue, portfolio.calculateTotalValue());
     }
 }
