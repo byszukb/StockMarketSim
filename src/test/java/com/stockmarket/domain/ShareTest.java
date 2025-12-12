@@ -33,4 +33,19 @@ public class ShareTest {
         Share expensiveShare = new Share(uniqueId, name, currentMarketValue, highHandlingFee);
         assertEquals(-27.0, expensiveShare.calculateMarketValue(1));
     }
+    
+    @Test
+    public void shouldThrowExceptionWhenNameIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> new Share("ID", null, 100.0, 5.0));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenIdIsEmpty() {
+        assertThrows(IllegalArgumentException.class, () -> new Share("", "Name", 100.0, 5.0));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenIdIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> new Share(null, "Name", 100.0, 5.0));
+    }
 }

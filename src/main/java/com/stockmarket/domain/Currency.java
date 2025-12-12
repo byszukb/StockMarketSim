@@ -5,6 +5,9 @@ public class Currency extends Asset{
 
     public Currency(String uniqueId, String name, double currentMarketValue, double spread) {
         super(uniqueId, name, currentMarketValue);
+        if (spread < 0) {
+            throw new IllegalArgumentException("Spread cannot be negative");
+        }
         this.spread = spread;
     }
 

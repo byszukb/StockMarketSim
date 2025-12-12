@@ -6,6 +6,9 @@ public class Commodity extends Asset{
 
     public Commodity(String uniqueId, String name, double currentMarketValue, double storageCostRate) {
         super(uniqueId, name, currentMarketValue);
+        if (storageCostRate < 0) {
+            throw new IllegalArgumentException("Storage cost rate cannot be negative");
+        }
         this.storageCostRate = storageCostRate;
     }
 

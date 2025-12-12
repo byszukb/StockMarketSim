@@ -6,6 +6,9 @@ public class Share extends Asset{
 
     public Share(String uniqueId, String name, double currentMarketValue, double handlingFee) {
         super(uniqueId, name, currentMarketValue);
+        if (handlingFee < 0) {
+            throw new IllegalArgumentException("Handling fee cannot be negative");
+        }
         this.handlingFee = handlingFee;
     }
 

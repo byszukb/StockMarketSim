@@ -24,6 +24,26 @@ public class PortfolioTest {
     }
 
     @Test
+    void testValidation_NullAssetThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> portfolio.buyAsset(null, 10));
+    }
+
+    @Test
+    void testValidation_NegativeAmountThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> portfolio.buyAsset(share, -5));
+    }
+
+    @Test
+    void testValidation_ZeroAmountThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> portfolio.buyAsset(share, 0));
+    }
+
+    @Test
+    void testValidation_NegativeInitialCashThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> new Portfolio(-100.0));
+    }
+
+    @Test
     void testPolymorphism_ShareValueDifferentFromCommodity() {
         int amount = 10;
         assertNotEquals(share.calculateMarketValue(amount), commodity.calculateMarketValue(amount));

@@ -6,6 +6,15 @@ public abstract class Asset {
     private double currentMarketValue;
 
     public Asset(String uniqueId, String name, double currentMarketValue) {
+        if (uniqueId == null || uniqueId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Unique ID cannot be null or empty");
+        }
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty");
+        }
+        if (currentMarketValue < 0) {
+            throw new IllegalArgumentException("Current market value cannot be negative");
+        }
         this.uniqueId = uniqueId;
         this.name = name;
         this.currentMarketValue = currentMarketValue;
@@ -25,7 +34,6 @@ public abstract class Asset {
     @Override
     public boolean equals(Object obj) {
         Asset asset = (Asset) obj;
-        if(uniqueId == null) return asset.uniqueId == null;
         return uniqueId.equals(asset.uniqueId);
     }
 

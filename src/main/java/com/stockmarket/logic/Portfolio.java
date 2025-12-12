@@ -14,11 +14,21 @@ public class Portfolio {
     private ArrayList<AssetHolding> holdings;
 
     public Portfolio(double initialCash) {
+        if (initialCash < 0) {
+            throw new IllegalArgumentException("Initial cash cannot be negative");
+        }
         this.cash = initialCash;
         this.holdings = new ArrayList<AssetHolding>();
     }
 
     public void buyAsset(Asset asset, int amount) {
+        if (asset == null) {
+            throw new IllegalArgumentException("Asset cannot be null");
+        }
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+
         double cost = asset.calculatePurchaseCost(amount);
         if(cash < cost) throw new InsufficientFundsException("Insufficient Funds");
         cash -= cost;
