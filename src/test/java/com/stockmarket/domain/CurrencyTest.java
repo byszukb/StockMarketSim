@@ -40,4 +40,9 @@ public class CurrencyTest {
         double expectedValue = currentMarketValue * amount;
         assertEquals(expectedValue, noSpreadCurrency.calculateMarketValue(amount));
     }
+
+    @Test
+    public void shouldThrowExceptionWhenSpreadIsNegative() {
+        assertThrows(IllegalArgumentException.class, () -> new Currency(uniqueId, name, currentMarketValue, -0.05));
+    }
 }

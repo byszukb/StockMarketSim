@@ -26,7 +26,7 @@ public abstract class Asset {
 
     @Override
     public int hashCode() {
-        return uniqueId == null ? 0 : uniqueId.hashCode();
+        return uniqueId.hashCode();
     }
 
     // Aktualnie jest to odrobine niebezpieczne - rzutujemy bez sprawdzania typu,

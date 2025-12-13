@@ -40,12 +40,42 @@ public class ShareTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenIdIsEmpty() {
-        assertThrows(IllegalArgumentException.class, () -> new Share("", "Name", 100.0, 5.0));
+    public void shouldThrowExceptionWhenIdIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> new Share(null, "Name", 100.0, 5.0));
     }
 
     @Test
-    public void shouldThrowExceptionWhenIdIsNull() {
-        assertThrows(IllegalArgumentException.class, () -> new Share(null, "Name", 100.0, 5.0));
+    public void shouldReturnCorrectUniqueId() {
+        assertEquals(uniqueId, share.getUniqueId());
+    }
+
+    @Test
+    public void shouldReturnCorrectName() {
+        assertEquals(name, share.getName());
+    }
+
+    @Test
+    public void shouldReturnCorrectHashCode() {
+        assertEquals(uniqueId.hashCode(), share.hashCode());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenIdIsBlank() {
+        assertThrows(IllegalArgumentException.class, () -> new Share("   ", "Name", 100.0, 5.0));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenNameIsBlank() {
+        assertThrows(IllegalArgumentException.class, () -> new Share("ID", "   ", 100.0, 5.0));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenHandlingFeeIsNegative() {
+        assertThrows(IllegalArgumentException.class, () -> new Share(uniqueId, name, currentMarketValue, -5.0));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenMarketValueIsNegative() {
+        assertThrows(IllegalArgumentException.class, () -> new Share(uniqueId, name, -100.0, 5.0));
     }
 }

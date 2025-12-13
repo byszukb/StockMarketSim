@@ -41,4 +41,9 @@ public class CommodityTest {
         double expectedValue = (currentMarketValue * amount) - (currentMarketValue * amount * highStorageCostRate);
         assertEquals(expectedValue, highCostCommodity.calculateMarketValue(amount));
     }
+
+    @Test
+    public void shouldThrowExceptionWhenStorageCostIsNegative() {
+        assertThrows(IllegalArgumentException.class, () -> new Commodity(uniqueId, name, currentMarketValue, -0.1));
+    }
 }
