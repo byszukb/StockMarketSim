@@ -85,8 +85,8 @@ public class Portfolio {
 
     public double calculateAssetsValue() {
         double totalValue = 0.0;
-        for (AssetHolding holding : holdings) {
-            totalValue += holding.asset.calculateMarketValue(holding.amount);
+        for(AssetHolding holding : holdings.values()) {
+            totalValue += holding.asset.calculateMarketValue(holding.getTotalQuantity());
         }
         return totalValue;
     }
