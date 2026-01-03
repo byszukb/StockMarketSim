@@ -29,10 +29,9 @@ public abstract class Asset {
         return uniqueId.hashCode();
     }
 
-    // Aktualnie jest to odrobine niebezpieczne - rzutujemy bez sprawdzania typu,
-    // ale opis zadania zabrania uzywania instanceof
     @Override
     public boolean equals(Object obj) {
+        if (!(obj instanceof Asset)) return false;
         Asset asset = (Asset) obj;
         return uniqueId.equals(asset.uniqueId);
     }
