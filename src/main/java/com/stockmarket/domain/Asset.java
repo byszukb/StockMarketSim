@@ -36,6 +36,7 @@ public abstract class Asset {
         return uniqueId.equals(asset.uniqueId);
     }
 
+
     public String getName() {
         return name;
     }
@@ -47,4 +48,6 @@ public abstract class Asset {
     public abstract double calculateMarketValue(int amount);
 
     public abstract double calculatePurchaseCost(int amount);
+
+    public abstract AssetType getType();
 }

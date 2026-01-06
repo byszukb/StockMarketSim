@@ -21,4 +21,13 @@ public class Currency extends Asset{
     public double calculatePurchaseCost(int amount) {
         return getCurrentMarketValue() * amount;
     }
+
+    public double getSpread() {
+        return spread;
+    }
+
+    @Override
+    public AssetType getType() {
+        return AssetType.CURRENCY;
+    }
 }

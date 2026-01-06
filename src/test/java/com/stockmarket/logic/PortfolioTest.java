@@ -1,16 +1,10 @@
 package com.stockmarket.logic;
 
-import com.stockmarket.domain.Asset;
-import com.stockmarket.domain.Commodity;
-import com.stockmarket.domain.Currency;
-import com.stockmarket.domain.Share;
+import com.stockmarket.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Queue;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,146 +23,262 @@ public class PortfolioTest {
         currency = new Currency("CNY", "Chinese Yuan", 100.0, 2.0);
     }
 
-    // --- Testy Walidacji / Null Check ---
+    // --- Validation Tests ---
 
     @Test
-    void testValidation_NullAssetThrowsException() {
-        // ewentualnie jak sprawdzam nulla to tez podpisz typ testu
-        assertThrows(IllegalArgumentException.class, () -> portfolio.buyAsset(null, 10));
+    void buyAsset_NullAsset_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> portfolio.buyAsset(null, 10, 100.0));
     }
 
     @Test
-    void testValidation_NegativeAmountThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> portfolio.buyAsset(share, -5));
+    void buyAsset_NegativeAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> portfolio.buyAsset(share, -5, 100.0));
     }
 
     @Test
-    void testValidation_ZeroAmountThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> portfolio.buyAsset(share, 0));
-    }
-
-    @Test
-    void testValidation_NegativeInitialCashThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> new Portfolio(-100.0));
-    }
-
-    // --- Testy Polimorfizmu ---
-
-    @Test
-    void testPolymorphism_DifferentAssetsReturnDifferentValues_List() {
-        int amount = 10;
-        
-        List<Asset> assets = Arrays.asList(share, commodity, currency);
-        Set<Double> values = new HashSet<>(); // Przechowuje unikalne wartości
-
-        for (Asset asset : assets) {
-            values.add(asset.calculateMarketValue(amount));
-        }
-
-        assertEquals(3, values.size());
-    }
-
-    @Test
-    void testPolymorphism_ShareValueDifferentFromCommodity() {
-        int amount = 10;
-        assertNotEquals(share.calculateMarketValue(amount), commodity.calculateMarketValue(amount));
-    }
-
-    @Test
-    void testPolymorphism_ShareValueDifferentFromCurrency() {
-        int amount = 10;
-        assertNotEquals(share.calculateMarketValue(amount), currency.calculateMarketValue(amount));
-    }
-
-    @Test
-    void testPolymorphism_CommodityValueDifferentFromCurrency() {
-        int amount = 10;
-        assertNotEquals(commodity.calculateMarketValue(amount), currency.calculateMarketValue(amount));
-    }
-
-    @Test
-    void testPolymorphism_PortfolioTotalValueCorrectWithMixedAssets() {
-        int amount = 10;
-        portfolio.buyAsset(share, amount);
-        portfolio.buyAsset(commodity, amount);
-        portfolio.buyAsset(currency, amount);
-
-        assertEquals(2875.0, portfolio.calculateAssetsValue(), 0.01);
-    }
-
-    // --- Testy Wyjątków ---
-
-    @Test
-    void testPurchaseMechanism_InsufficientFundsThrowsException() {
-        Portfolio poorPortfolio = new Portfolio(50.0);
-        Share expensiveShare = new Share("LPP", "LPP.SA", 100.0, 5.0);
-        
-        assertThrows(InsufficientFundsException.class, () -> {
-            poorPortfolio.buyAsset(expensiveShare, 1);
-        });
-    }
-
-    @Test
-    void testPurchaseMechanism_HiddenCostsPreventPurchase() {
-        Portfolio exactPortfolio = new Portfolio(100.0);
-        Share deceptiveShare = new Share("GPEC", "GPEC.DE", 98.0, 5.0);
-
-        assertThrows(InsufficientFundsException.class, () -> {
-            exactPortfolio.buyAsset(deceptiveShare, 1);
-        });
-    }
-
-    // --- Testy Logiki Biznesowej ---
-
-    @Test
-    void testCommodityDepreciation() {
-        int amount = 100;
-        portfolio.buyAsset(commodity, amount);
-        
-        double expectedValue = 9000.0; 
-        assertEquals(expectedValue, portfolio.calculateAssetsValue(), 0.01);
-    }
-
-    @Test
-    void testCurrencySpread() {
-        int amount = 100;
-        portfolio.buyAsset(currency, amount);
-        
-        double expectedValue = 9800.0; 
-        assertEquals(expectedValue, portfolio.calculateAssetsValue(), 0.01);
+    void buyAsset_ZeroAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> portfolio.buyAsset(share, 0, 100.0));
     }
     
     @Test
-    void testBuyingSameAssetIncreasesAmount() {
-        portfolio.buyAsset(share, 10);
-        portfolio.buyAsset(share, 5);
-        
-        double expectedValue = 1495.0;
-        assertEquals(expectedValue, portfolio.calculateAssetsValue(), 0.01);
+    void buyAsset_NegativePrice_ThrowsException() {
+         assertThrows(IllegalArgumentException.class, () -> portfolio.buyAsset(share, 10, -50.0));
     }
 
     @Test
-    void testPortfolioAudit_AssetsValueCorrect() {
-        portfolio.buyAsset(share, 10);
-        
-        double assetsValue = portfolio.calculateAssetsValue();
-        
-        assertEquals(995.0, assetsValue, 0.01);
+    void constructor_NegativeInitialCash_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> new Portfolio(-100.0));
     }
 
     @Test
-    void testPortfolioAudit_CashCorrect() {
-        portfolio.buyAsset(share, 10);
-        
-        assertEquals(8995.0, portfolio.getCash(), 0.01);
+    void sellAsset_NullAsset_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> portfolio.sellAsset(null, 10, 100.0));
     }
 
     @Test
-    void testPortfolioAudit_TotalValueCorrect() {
-        portfolio.buyAsset(share, 10);
+    void sellAsset_NegativeAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> portfolio.sellAsset(share, -5, 100.0));
+    }
+
+    @Test
+    void sellAsset_AssetNotOwned_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> portfolio.sellAsset(share, 5, 100.0));
+    }
+
+    @Test
+    void sellAsset_NotEnoughQuantity_ThrowsException() {
+        portfolio.buyAsset(share, 10, 100.0);
+        assertThrows(IllegalArgumentException.class, () -> portfolio.sellAsset(share, 15, 110.0));
+    }
+
+    @Test
+    void buyAsset_InsufficientFunds_ThrowsException() {
+        Portfolio poorPortfolio = new Portfolio(50.0);
+        assertThrows(InsufficientFundsException.class, () -> poorPortfolio.buyAsset(share, 1, 100.0));
+    }
+
+    // --- Buying Logic Tests ---
+
+    @Test
+    void buyAsset_SinglePurchase_UpdatesCash() {
+        portfolio.buyAsset(share, 10, 100.0); // Cost: 1000
+        assertEquals(9000.0, portfolio.getCash(), 0.01);
+    }
+
+    @Test
+    void buyAsset_SinglePurchase_UpdatesHoldingsQuantity() {
+        portfolio.buyAsset(share, 10, 100.0);
+        assertEquals(10, portfolio.getHoldings().get(share.getUniqueId()).getTotalQuantity());
+    }
+
+    @Test
+    void buyAsset_MultiplePurchasesSameAsset_IncreasesTotalQuantity() {
+        portfolio.buyAsset(share, 10, 100.0);
+        portfolio.buyAsset(share, 5, 110.0);
+        assertEquals(15, portfolio.getHoldings().get(share.getUniqueId()).getTotalQuantity());
+    }
+    
+    @Test
+    void buyAsset_CreatesCorrectNumberOfLots() {
+        portfolio.buyAsset(share, 10, 100.0);
+        portfolio.buyAsset(share, 5, 110.0);
+        assertEquals(2, portfolio.getHoldings().get(share.getUniqueId()).getPurchaseLots().size());
+    }
+    
+    // --- AssetHolding Tests (Coverage) ---
+    
+    @Test
+    void assetHolding_getAsset_ReturnsCorrectAsset() {
+        portfolio.buyAsset(share, 10, 100.0);
+        Portfolio.AssetHolding holding = portfolio.getHoldings().get(share.getUniqueId());
         
-        double totalValue = portfolio.calculateTotalValue();
+        assertEquals(share, holding.getAsset());
+    }
+
+    // --- FIFO & Selling Logic Tests ---
+
+    @Test
+    void sellAsset_FullSaleSingleLot_UpdatesCash() {
+        portfolio.buyAsset(share, 10, 100.0); // Cost 1000
+        portfolio.sellAsset(share, 10, 150.0); // Revenue 1500
         
-        assertEquals(9990.0, totalValue, 0.01);
+        // Initial 10000 - 1000 + 1500 = 10500
+        assertEquals(10500.0, portfolio.getCash(), 0.01);
+    }
+
+    @Test
+    void sellAsset_FullSaleSingleLot_RemovesAssetFromHoldings() {
+        portfolio.buyAsset(share, 10, 100.0);
+        portfolio.sellAsset(share, 10, 150.0);
+        
+        assertFalse(portfolio.getHoldings().containsKey(share.getUniqueId()));
+    }
+
+    @Test
+    void sellAsset_PartialSaleSingleLot_UpdatesQuantity() {
+        portfolio.buyAsset(share, 10, 100.0);
+        portfolio.sellAsset(share, 4, 150.0);
+        
+        assertEquals(6, portfolio.getHoldings().get(share.getUniqueId()).getTotalQuantity());
+    }
+
+    @Test
+    void sellAsset_PartialSaleSingleLot_UpdatesLotQuantity() {
+        portfolio.buyAsset(share, 10, 100.0);
+        portfolio.sellAsset(share, 4, 150.0);
+        
+        PurchaseLot remainingLot = portfolio.getHoldings().get(share.getUniqueId()).getPurchaseLots().peek();
+        assertEquals(6, remainingLot.getQuantity());
+    }
+
+    @Test
+    void sellAsset_FIFOMultipleLots_FirstLotConsumed() {
+        // Lot 1: 10 units @ 100
+        portfolio.buyAsset(share, 10, 100.0);
+        // Lot 2: 10 units @ 120
+        portfolio.buyAsset(share, 10, 120.0);
+        
+        // Sell 15 units. Should consume all 10 from Lot 1 and 5 from Lot 2.
+        portfolio.sellAsset(share, 15, 150.0);
+        
+        // Remaining should be 5 units from Lot 2
+        Queue<PurchaseLot> lots = portfolio.getHoldings().get(share.getUniqueId()).getPurchaseLots();
+        
+        assertEquals(1, lots.size()); // Only Lot 2 remains
+    }
+    
+    @Test
+    void sellAsset_FIFOMultipleLots_RemainingLotHasCorrectQuantity() {
+        // Lot 1: 10 units @ 100
+        portfolio.buyAsset(share, 10, 100.0);
+        // Lot 2: 10 units @ 120
+        portfolio.buyAsset(share, 10, 120.0);
+        
+        portfolio.sellAsset(share, 15, 150.0);
+        
+        Queue<PurchaseLot> lots = portfolio.getHoldings().get(share.getUniqueId()).getPurchaseLots();
+        assertEquals(5, lots.peek().getQuantity());
+    }
+    
+    @Test
+    void sellAsset_FIFOMultipleLots_RemainingLotHasCorrectPrice() {
+        // Lot 1: 10 units @ 100
+        portfolio.buyAsset(share, 10, 100.0);
+        // Lot 2: 10 units @ 120
+        portfolio.buyAsset(share, 10, 120.0);
+        
+        portfolio.sellAsset(share, 15, 150.0);
+        
+        Queue<PurchaseLot> lots = portfolio.getHoldings().get(share.getUniqueId()).getPurchaseLots();
+        assertEquals(120.0, lots.peek().getPurchasePrice(), 0.01);
+    }
+
+    // --- Profit & Loss (P&L) Tests ---
+
+    @Test
+    void sellAsset_GeneratesSaleReport() {
+        portfolio.buyAsset(share, 10, 100.0);
+        portfolio.sellAsset(share, 10, 150.0);
+        
+        assertEquals(1, portfolio.getSalesHistory().size());
+    }
+
+    @Test
+    void sellAsset_ReportHasCorrectRevenue() {
+        portfolio.buyAsset(share, 10, 100.0);
+        portfolio.sellAsset(share, 10, 150.0);
+        
+        SaleReport report = portfolio.getSalesHistory().get(0);
+        assertEquals(1500.0, report.getTotalRevenue(), 0.01);
+    }
+
+    @Test
+    void sellAsset_ReportHasCorrectProfit_SingleLot() {
+        portfolio.buyAsset(share, 10, 100.0); // Cost 1000
+        portfolio.sellAsset(share, 10, 150.0); // Rev 1500
+        
+        SaleReport report = portfolio.getSalesHistory().get(0);
+        // Profit = 1500 - 1000 = 500
+        assertEquals(500.0, report.getTotalProfitOrLoss(), 0.01);
+    }
+
+    @Test
+    void sellAsset_ReportHasCorrectProfit_MultipleLotsMixed() {
+        // Scenario from requirements:
+        // Lot A: 10 @ 100
+        portfolio.buyAsset(share, 10, 100.0);
+        // Lot B: 10 @ 120
+        portfolio.buyAsset(share, 10, 120.0);
+        
+        // Sell 15 @ 150
+        // Profit Lot A: 10 * (150 - 100) = 500
+        // Profit Lot B: 5 * (150 - 120) = 150
+        // Total Profit: 650
+        portfolio.sellAsset(share, 15, 150.0);
+        
+        SaleReport report = portfolio.getSalesHistory().get(0);
+        assertEquals(650.0, report.getTotalProfitOrLoss(), 0.01);
+    }
+
+    // --- Polymorphism & Value Calculation Tests ---
+    
+    @Test
+    void calculateAssetsValue_ShareIncludesHandlingFee() {
+        // Share value = (price * amount) - fee
+        // Market Price 100, Fee 5. Amount 10.
+        // Value = (100 * 10) - 5 = 995
+        portfolio.buyAsset(share, 10, 100.0); // Buy price doesn't affect market value calculation, current market value does
+        
+        assertEquals(995.0, portfolio.calculateAssetsValue(), 0.01);
+    }
+    
+    @Test
+    void calculateAssetsValue_CommodityIncludesStorageCost() {
+        // Commodity value = (price * amount) - (price * amount * rate)
+        // Market 100, Rate 0.1 (10%). Amount 10.
+        // Base = 1000. Cost = 100. Value = 900.
+        portfolio.buyAsset(commodity, 10, 100.0);
+        
+        assertEquals(900.0, portfolio.calculateAssetsValue(), 0.01);
+    }
+    
+    @Test
+    void calculateAssetsValue_CurrencyIncludesSpread() {
+        // Currency value = (price - spread) * amount
+        // Market 100, Spread 2. Amount 10.
+        // Unit Value = 98. Total = 980.
+        portfolio.buyAsset(currency, 10, 100.0);
+        
+        assertEquals(980.0, portfolio.calculateAssetsValue(), 0.01);
+    }
+    
+    @Test
+    void calculateTotalValue_SumOfCashAndAssets() {
+        // Cash: 10000 - 1000 (buy) = 9000
+        // Asset Value (Share): 995
+        // Total: 9995
+        portfolio.buyAsset(share, 10, 100.0);
+        
+        assertEquals(9995.0, portfolio.calculateTotalValue(), 0.01);
     }
 }

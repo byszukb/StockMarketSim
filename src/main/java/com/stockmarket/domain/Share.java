@@ -1,7 +1,6 @@
 package com.stockmarket.domain;
 
 public class Share extends Asset{
-
     private double handlingFee;
 
     public Share(String uniqueId, String name, double currentMarketValue, double handlingFee) {
@@ -20,5 +19,14 @@ public class Share extends Asset{
     @Override
     public double calculatePurchaseCost(int amount) {
         return (getCurrentMarketValue() * amount) + handlingFee;
+    }
+
+    public double getHandlingFee() {
+        return handlingFee;
+    }
+
+    @Override
+    public AssetType getType() {
+        return AssetType.SHARE;
     }
 }

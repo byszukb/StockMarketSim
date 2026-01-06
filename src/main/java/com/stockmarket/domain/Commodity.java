@@ -23,4 +23,13 @@ public class Commodity extends Asset{
     public double calculatePurchaseCost(int amount) {
         return getCurrentMarketValue() * amount;
     }
+
+    public double getStorageCostRate() {
+        return storageCostRate;
+    }
+
+    @Override
+    public AssetType getType() {
+        return AssetType.COMMODITY;
+    }
 }
