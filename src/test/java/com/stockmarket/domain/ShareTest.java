@@ -17,6 +17,8 @@ public class ShareTest {
         share = new Share(uniqueId, name, currentMarketValue, handlingFee);
     }
 
+    // --- Calculation Tests ---
+
     @Test
     public void shouldCalculateValueForStandardAmount(){
         assertEquals(share.calculateMarketValue(10), (currentMarketValue * 10) - handlingFee);
@@ -35,6 +37,13 @@ public class ShareTest {
     }
     
     @Test
+    public void shouldCalculatePurchaseCost_AddsHandlingFee() {
+        assertEquals(4735.0, share.calculatePurchaseCost(10), 0.001);
+    }
+    
+    // --- Validation Tests (Asset & Share) ---
+
+    @Test
     public void shouldThrowExceptionWhenNameIsNull() {
         assertThrows(IllegalArgumentException.class, () -> new Share("ID", null, 100.0, 5.0));
     }
@@ -42,21 +51,6 @@ public class ShareTest {
     @Test
     public void shouldThrowExceptionWhenIdIsNull() {
         assertThrows(IllegalArgumentException.class, () -> new Share(null, "Name", 100.0, 5.0));
-    }
-
-    @Test
-    public void shouldReturnCorrectUniqueId() {
-        assertEquals(uniqueId, share.getUniqueId());
-    }
-
-    @Test
-    public void shouldReturnCorrectName() {
-        assertEquals(name, share.getName());
-    }
-
-    @Test
-    public void shouldReturnCorrectHashCode() {
-        assertEquals(uniqueId.hashCode(), share.hashCode());
     }
 
     @Test
@@ -77,5 +71,61 @@ public class ShareTest {
     @Test
     public void shouldThrowExceptionWhenMarketValueIsNegative() {
         assertThrows(IllegalArgumentException.class, () -> new Share(uniqueId, name, -100.0, 5.0));
+    }
+
+    // --- Getter & HashCode Tests ---
+
+    @Test
+    public void shouldReturnCorrectUniqueId() {
+        assertEquals(uniqueId, share.getUniqueId());
+    }
+
+    @Test
+    public void shouldReturnCorrectName() {
+        assertEquals(name, share.getName());
+    }
+
+    @Test
+    public void shouldReturnCorrectHandlingFee() {
+        assertEquals(handlingFee, share.getHandlingFee());
+    }
+
+    @Test
+    public void shouldReturnCorrectAssetType() {
+        assertEquals(AssetType.SHARE, share.getType());
+    }
+
+    @Test
+    public void shouldReturnCorrectHashCode() {
+        assertEquals(uniqueId.hashCode(), share.hashCode());
+    }
+
+    // --- Equals Tests (Asset Coverage) ---
+
+    @Test
+    public void equals_ReturnsTrueForSameObject() {
+        assertTrue(share.equals(share));
+    }
+
+    @Test
+    public void equals_ReturnsTrueForEqualId() {
+        Share otherShare = new Share(uniqueId, "Other Name", 100.0, 1.0);
+        assertTrue(share.equals(otherShare));
+    }
+
+    @Test
+    public void equals_ReturnsFalseForDifferentId() {
+        Share otherShare = new Share("OTHER", name, currentMarketValue, handlingFee);
+        assertFalse(share.equals(otherShare));
+    }
+
+    @Test
+    public void equals_ReturnsFalseForNull() {
+        assertFalse(share.equals(null));
+    }
+
+    @Test
+    public void equals_ReturnsFalseForDifferentClass() {
+        assertFalse(share.equals("Some String"));
     }
 }

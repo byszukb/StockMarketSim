@@ -20,7 +20,7 @@ public class PortfolioPersistenceManager {
             for (Portfolio.AssetHolding holding : holdings.values()) {
                 Asset asset = holding.getAsset();
                 double specificValue = 0.0;
-                String assetType;
+                String assetType = null;
 
                 if (asset.getType() == AssetType.SHARE) {
                     Share share = (Share) asset;
@@ -36,9 +36,6 @@ public class PortfolioPersistenceManager {
                     Commodity commodity = (Commodity) asset;
                     assetType = AssetType.COMMODITY.name();
                     specificValue = commodity.getStorageCostRate();
-                }
-                else {
-                    assetType = "UNKNOWN";
                 }
 
                 writer.write("ASSET," + assetType + "," + asset.getUniqueId() + "," + asset.getName() + "," + asset.getCurrentMarketValue() + "," + specificValue + "," + holding.getTotalQuantity());
@@ -61,14 +58,27 @@ public class PortfolioPersistenceManager {
             String line;
             Asset currentAsset = null;
             int expectedQuantity = 0;
+            
+            // Check for empty file
+            line = reader.readLine();
+            if (line == null) {
+                throw new DataIntegrityException("File is empty");
+            }
+            
+            if (line.startsWith("HEADER")) {
+                 String [] parts = line.split(",");
+                 if(parts[1].equals("CASH")){
+                     double cash = Double.parseDouble(parts[2]);
+                     portfolio = new Portfolio(cash);
+                 }
+            } else {
+                 throw new DataIntegrityException("Missing HEADER");
+            }
+            
             while ((line = reader.readLine()) != null){
                 String [] parts = line.split(",");
                 switch (parts[0]){
                     case "HEADER":
-                        if(parts[1].equals("CASH")){
-                            double cash = Double.parseDouble(parts[2]);
-                            portfolio = new Portfolio(cash);
-                        }
                         break;
                     case "ASSET":
                         if(currentAsset != null && expectedQuantity > 0){

@@ -1,49 +1,50 @@
 package com.stockmarket.domain;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CommodityTest {
 
     private Commodity commodity;
-
-    private final String uniqueId = "GLD";
+    private final String uniqueId = "GOLD";
     private final String name = "Gold";
-    private final double currentMarketValue = 100.0;
-    private final double storageCostRate = 0.01;
+    private final double marketValue = 1800.0;
+    private final double storageRate = 0.01; 
 
     @BeforeEach
     void setUp() {
-        commodity = new Commodity(uniqueId, name, currentMarketValue, storageCostRate);
+        commodity = new Commodity(uniqueId, name, marketValue, storageRate);
+    }
+
+    // --- Constructor Validation Tests ---
+
+    @Test
+    void constructor_NegativeStorageRate_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> new Commodity(uniqueId, name, marketValue, -0.01));
+    }
+
+    // --- Calculation Tests ---
+
+    @Test
+    void calculateMarketValue_SubtractsStorageCost() {
+        assertEquals(17820.0, commodity.calculateMarketValue(10), 0.001);
     }
 
     @Test
-    public void shouldCalculateValueForStandardAmount() {
-        int amount = 10;
-        double expectedValue = (currentMarketValue * amount) - (currentMarketValue * amount * storageCostRate);
-        assertEquals(expectedValue, commodity.calculateMarketValue(amount));
+    void calculatePurchaseCost_IgnoresStorageCost() {
+        assertEquals(18000.0, commodity.calculatePurchaseCost(10), 0.001);
     }
 
-    @Test
-    public void shouldCalculateValueForNoStorageCost() {
-        Commodity noStorageCostCommodity = new Commodity(uniqueId, name, currentMarketValue, 0.0);
-        int amount = 2;
-        double expectedValue = currentMarketValue * amount;
-        assertEquals(expectedValue, noStorageCostCommodity.calculateMarketValue(amount));
-    }
+    // --- Getter Tests ---
 
     @Test
-    public void shouldCalculateValueForHighStorageCost() {
-        double highStorageCostRate = 0.5;
-        Commodity highCostCommodity = new Commodity(uniqueId, name, currentMarketValue, highStorageCostRate);
-        int amount = 5;
-        double expectedValue = (currentMarketValue * amount) - (currentMarketValue * amount * highStorageCostRate);
-        assertEquals(expectedValue, highCostCommodity.calculateMarketValue(amount));
+    void getType_ReturnsCommodity() {
+        assertEquals(AssetType.COMMODITY, commodity.getType());
     }
-
+    
     @Test
-    public void shouldThrowExceptionWhenStorageCostIsNegative() {
-        assertThrows(IllegalArgumentException.class, () -> new Commodity(uniqueId, name, currentMarketValue, -0.1));
+    void getStorageCostRate_ReturnsCorrectValue() {
+        assertEquals(storageRate, commodity.getStorageCostRate());
     }
 }

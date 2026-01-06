@@ -1,48 +1,50 @@
 package com.stockmarket.domain;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CurrencyTest {
+
     private Currency currency;
-    private final String uniqueId = "PLN";
-    private final String name = "Polish Zloty";
-    private final double currentMarketValue = 4.5;
+    private final String uniqueId = "USD";
+    private final String name = "US Dollar";
+    private final double marketValue = 4.0;
     private final double spread = 0.05;
 
     @BeforeEach
     void setUp() {
-        currency = new Currency(uniqueId, name, currentMarketValue, spread);
+        currency = new Currency(uniqueId, name, marketValue, spread);
+    }
+
+    // --- Constructor Validation Tests ---
+
+    @Test
+    void constructor_NegativeSpread_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> new Currency(uniqueId, name, marketValue, -0.1));
+    }
+
+    // --- Calculation Tests ---
+
+    @Test
+    void calculateMarketValue_SubtractsSpread() {
+        assertEquals(395.0, currency.calculateMarketValue(100), 0.001);
     }
 
     @Test
-    public void shouldCalculateValueForStandardSpread() {
-        int amount = 100;
-        double expectedValue = (currentMarketValue - spread) * amount;
-        assertEquals(expectedValue, currency.calculateMarketValue(amount));
+    void calculatePurchaseCost_IgnoresSpread() {
+        assertEquals(400.0, currency.calculatePurchaseCost(100), 0.001);
     }
 
-    @Test
-    public void shouldCalculateValueForHighSpread() {
-        double highSpread = 2;
-        double lowCurrentMarketValue = 1.5;
-        Currency highSpreadCurrency = new Currency(uniqueId, name, lowCurrentMarketValue, highSpread);
-        int amount = 10;
-        double expectedValue = (lowCurrentMarketValue - highSpread) * amount;
-        assertEquals(expectedValue, highSpreadCurrency.calculateMarketValue(amount));
-    }
+    // --- Getter Tests ---
 
     @Test
-    public void shouldCalculateValueForNoSpread() {
-        Currency noSpreadCurrency = new Currency(uniqueId, name, currentMarketValue, 0.0);
-        int amount = 50;
-        double expectedValue = currentMarketValue * amount;
-        assertEquals(expectedValue, noSpreadCurrency.calculateMarketValue(amount));
+    void getType_ReturnsCurrency() {
+        assertEquals(AssetType.CURRENCY, currency.getType());
     }
-
+    
     @Test
-    public void shouldThrowExceptionWhenSpreadIsNegative() {
-        assertThrows(IllegalArgumentException.class, () -> new Currency(uniqueId, name, currentMarketValue, -0.05));
+    void getSpread_ReturnsCorrectValue() {
+        assertEquals(spread, currency.getSpread());
     }
 }

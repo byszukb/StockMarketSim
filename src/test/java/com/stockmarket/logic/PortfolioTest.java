@@ -24,6 +24,12 @@ public class PortfolioTest {
     }
 
     // --- Validation Tests ---
+    
+    @Test
+    void constructor_ZeroInitialCash_IsAllowed() {
+        Portfolio poor = new Portfolio(0.0);
+        assertEquals(0.0, poor.getCash(), 0.01);
+    }
 
     @Test
     void buyAsset_NullAsset_ThrowsException() {
@@ -81,7 +87,7 @@ public class PortfolioTest {
 
     @Test
     void buyAsset_SinglePurchase_UpdatesCash() {
-        portfolio.buyAsset(share, 10, 100.0); // Cost: 1000
+        portfolio.buyAsset(share, 10, 100.0); 
         assertEquals(9000.0, portfolio.getCash(), 0.01);
     }
 
@@ -99,13 +105,13 @@ public class PortfolioTest {
     }
     
     @Test
-    void buyAsset_CreatesCorrectNumberOfLots() {
+    void buyAsset_MultiplePurchasesSameAsset_CreatesNewLot() {
         portfolio.buyAsset(share, 10, 100.0);
         portfolio.buyAsset(share, 5, 110.0);
         assertEquals(2, portfolio.getHoldings().get(share.getUniqueId()).getPurchaseLots().size());
     }
     
-    // --- AssetHolding Tests (Coverage) ---
+    // --- AssetHolding Tests ---
     
     @Test
     void assetHolding_getAsset_ReturnsCorrectAsset() {
@@ -119,10 +125,9 @@ public class PortfolioTest {
 
     @Test
     void sellAsset_FullSaleSingleLot_UpdatesCash() {
-        portfolio.buyAsset(share, 10, 100.0); // Cost 1000
-        portfolio.sellAsset(share, 10, 150.0); // Revenue 1500
+        portfolio.buyAsset(share, 10, 100.0); 
+        portfolio.sellAsset(share, 10, 150.0); 
         
-        // Initial 10000 - 1000 + 1500 = 10500
         assertEquals(10500.0, portfolio.getCash(), 0.01);
     }
 
@@ -153,25 +158,18 @@ public class PortfolioTest {
 
     @Test
     void sellAsset_FIFOMultipleLots_FirstLotConsumed() {
-        // Lot 1: 10 units @ 100
-        portfolio.buyAsset(share, 10, 100.0);
-        // Lot 2: 10 units @ 120
-        portfolio.buyAsset(share, 10, 120.0);
+        portfolio.buyAsset(share, 10, 100.0); 
+        portfolio.buyAsset(share, 10, 120.0); // Lot 2: 10 units @ 120
         
-        // Sell 15 units. Should consume all 10 from Lot 1 and 5 from Lot 2.
-        portfolio.sellAsset(share, 15, 150.0);
+        portfolio.sellAsset(share, 15, 150.0); // Sell 15 units
         
-        // Remaining should be 5 units from Lot 2
         Queue<PurchaseLot> lots = portfolio.getHoldings().get(share.getUniqueId()).getPurchaseLots();
-        
         assertEquals(1, lots.size()); // Only Lot 2 remains
     }
     
     @Test
     void sellAsset_FIFOMultipleLots_RemainingLotHasCorrectQuantity() {
-        // Lot 1: 10 units @ 100
         portfolio.buyAsset(share, 10, 100.0);
-        // Lot 2: 10 units @ 120
         portfolio.buyAsset(share, 10, 120.0);
         
         portfolio.sellAsset(share, 15, 150.0);
@@ -182,9 +180,7 @@ public class PortfolioTest {
     
     @Test
     void sellAsset_FIFOMultipleLots_RemainingLotHasCorrectPrice() {
-        // Lot 1: 10 units @ 100
         portfolio.buyAsset(share, 10, 100.0);
-        // Lot 2: 10 units @ 120
         portfolio.buyAsset(share, 10, 120.0);
         
         portfolio.sellAsset(share, 15, 150.0);
@@ -214,26 +210,18 @@ public class PortfolioTest {
 
     @Test
     void sellAsset_ReportHasCorrectProfit_SingleLot() {
-        portfolio.buyAsset(share, 10, 100.0); // Cost 1000
-        portfolio.sellAsset(share, 10, 150.0); // Rev 1500
+        portfolio.buyAsset(share, 10, 100.0); 
+        portfolio.sellAsset(share, 10, 150.0); 
         
         SaleReport report = portfolio.getSalesHistory().get(0);
-        // Profit = 1500 - 1000 = 500
         assertEquals(500.0, report.getTotalProfitOrLoss(), 0.01);
     }
 
     @Test
     void sellAsset_ReportHasCorrectProfit_MultipleLotsMixed() {
-        // Scenario from requirements:
-        // Lot A: 10 @ 100
-        portfolio.buyAsset(share, 10, 100.0);
-        // Lot B: 10 @ 120
-        portfolio.buyAsset(share, 10, 120.0);
+        portfolio.buyAsset(share, 10, 100.0); // Lot A
+        portfolio.buyAsset(share, 10, 120.0); // Lot B
         
-        // Sell 15 @ 150
-        // Profit Lot A: 10 * (150 - 100) = 500
-        // Profit Lot B: 5 * (150 - 120) = 150
-        // Total Profit: 650
         portfolio.sellAsset(share, 15, 150.0);
         
         SaleReport report = portfolio.getSalesHistory().get(0);
@@ -244,41 +232,25 @@ public class PortfolioTest {
     
     @Test
     void calculateAssetsValue_ShareIncludesHandlingFee() {
-        // Share value = (price * amount) - fee
-        // Market Price 100, Fee 5. Amount 10.
-        // Value = (100 * 10) - 5 = 995
-        portfolio.buyAsset(share, 10, 100.0); // Buy price doesn't affect market value calculation, current market value does
-        
+        portfolio.buyAsset(share, 10, 100.0); 
         assertEquals(995.0, portfolio.calculateAssetsValue(), 0.01);
     }
     
     @Test
     void calculateAssetsValue_CommodityIncludesStorageCost() {
-        // Commodity value = (price * amount) - (price * amount * rate)
-        // Market 100, Rate 0.1 (10%). Amount 10.
-        // Base = 1000. Cost = 100. Value = 900.
         portfolio.buyAsset(commodity, 10, 100.0);
-        
         assertEquals(900.0, portfolio.calculateAssetsValue(), 0.01);
     }
     
     @Test
     void calculateAssetsValue_CurrencyIncludesSpread() {
-        // Currency value = (price - spread) * amount
-        // Market 100, Spread 2. Amount 10.
-        // Unit Value = 98. Total = 980.
         portfolio.buyAsset(currency, 10, 100.0);
-        
         assertEquals(980.0, portfolio.calculateAssetsValue(), 0.01);
     }
     
     @Test
     void calculateTotalValue_SumOfCashAndAssets() {
-        // Cash: 10000 - 1000 (buy) = 9000
-        // Asset Value (Share): 995
-        // Total: 9995
         portfolio.buyAsset(share, 10, 100.0);
-        
         assertEquals(9995.0, portfolio.calculateTotalValue(), 0.01);
     }
 }
