@@ -12,6 +12,10 @@ public class MarketService {
         this.orderBooks = orderBooks;
     }
 
+    public Map<String, OrderBook> getOrderBooks() {
+        return orderBooks;
+    }
+
     public void placeOrder(Order order) {
         String assetId = order.getAsset().getUniqueId();
         OrderBook orderBook = orderBooks.get(assetId);

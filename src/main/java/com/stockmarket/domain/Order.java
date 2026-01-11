@@ -44,7 +44,7 @@ public class Order {
         return typeOfOrder;
     }
     public Portfolio getPortfolio() {
-        return portfolio;
+         return portfolio;
     }
 
     public enum Type {

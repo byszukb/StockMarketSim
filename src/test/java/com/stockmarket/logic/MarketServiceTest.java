@@ -30,6 +30,24 @@ public class MarketServiceTest {
     // --- Basic Mechanism Tests ---
 
     @Test
+    void getOrderBooks_ReturnsOrderBooksMap() {
+        Map<String, OrderBook> orderBooksMap = new HashMap<>();
+        MarketService testService = new MarketService(orderBooksMap);
+        
+        assertSame(orderBooksMap, testService.getOrderBooks());
+    }
+
+    @Test
+    void getOrderBooks_ReturnsMapWithAddedOrderBooks() {
+        Order buyOrder = new Order(share, 10, 150.0, Order.Type.BUY, buyerPortfolio);
+        marketService.placeOrder(buyOrder);
+        
+        Map<String, OrderBook> result = marketService.getOrderBooks();
+        
+        assertTrue(result.containsKey("AAPL"));
+    }
+
+    @Test
     void placeOrder_AddsOrderBookForNewAsset() {
         Order buyOrder = new Order(share, 10, 150.0, Order.Type.BUY, buyerPortfolio);
         Map<String, OrderBook> orderBooksMap = new HashMap<>();

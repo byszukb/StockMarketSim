@@ -99,7 +99,6 @@ public class PortfolioPersistenceManager {
                             typeEnum = AssetType.valueOf(assetTypeStr);
                         } catch (IllegalArgumentException e) {
                             // Handle unknown types or backward compatibility if needed
-                            // For strict compliance, we might want to throw or log
                             typeEnum = null;
                         }
 

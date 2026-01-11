@@ -189,7 +189,7 @@ public class PortfolioTest {
         assertEquals(120.0, lots.peek().getPurchasePrice(), 0.01);
     }
 
-    // --- Profit & Loss (P&L) Tests ---
+    // --- Profit & Loss Tests ---
 
     @Test
     void sellAsset_GeneratesSaleReport() {
@@ -219,8 +219,8 @@ public class PortfolioTest {
 
     @Test
     void sellAsset_ReportHasCorrectProfit_MultipleLotsMixed() {
-        portfolio.buyAsset(share, 10, 100.0); // Lot A
-        portfolio.buyAsset(share, 10, 120.0); // Lot B
+        portfolio.buyAsset(share, 10, 100.0);
+        portfolio.buyAsset(share, 10, 120.0);
         
         portfolio.sellAsset(share, 15, 150.0);
         
